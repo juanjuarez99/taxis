@@ -29,5 +29,17 @@ module.exports = {
 				res.json({ status: "OK" });
 			});
 		});
+
+		app.delete(route, (req, res) => {
+			const { curp } = req.body;
+			const query = `DELETE FROM datospersonales WHERE curp = '${curp}'`;
+			connection.query(query, (error, result) => {
+				if (error) {
+					res.json(error);
+					return;
+				}
+				res.json({ status: "OK" });
+			});
+		});
 	},
 };
