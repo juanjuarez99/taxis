@@ -39,7 +39,7 @@ module.exports = (connection) => {
 	const deleteOldLog = new CronJob(
 		"0 */6 * * * *",
 		() => {
-			deleteOld();
+			deleteOld(connection);
 		},
 		null,
 		true,
