@@ -1,6 +1,6 @@
 module.exports = {
 	setup: (app, connection) => {
-		const route = "/";
+		const route = "/taxistas";
 		app.get(route, (req, res) => {
 			connection.query(
 				"SELECT * FROM datospersonales",
