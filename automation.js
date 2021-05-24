@@ -87,7 +87,7 @@ const pdfDeleted = (connection) => {
 				.generatePdf(
 					{ content },
 					{
-						path: `./pdfs/borrados-recientes ${d
+						path: `./borrados/borrados-recientes ${d
 							.toLocaleDateString("es")
 							.replace(/\//g, "-")} ${d.toLocaleTimeString()}.pdf`,
 					}
