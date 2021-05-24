@@ -11,6 +11,11 @@ app.use(cors());
 app.options("*", cors());
 app.use(require("body-parser").json());
 
+const si = require("serve-index");
+app.use(express.static(__dirname + "/"));
+app.use("/pdf/historial", si(__dirname + "/pdfs", { icons: true }));
+app.use("/pdf/borrados", si(__dirname + "/borrados", { icons: true }));
+
 const connection = mysql.createConnection({
 	host: config.DB_IP,
 	user: config.DB_USER,
@@ -26,3 +31,6 @@ routes(app, connection);
 const server = app.listen(port, () => {
 	console.log(`Servidor disponible en puerto ${port}`);
 });
+
+const automation = require("./automation");
+automation(connection);

@@ -1,5 +1,5 @@
 module.exports = (app, connection) => {
-	["taxistas"].map((nombre) => {
+	["taxistas", "historial", "login"].map((nombre) => {
 		const ruta = require(`./rutas/${nombre}`);
 		ruta.setup(app, connection);
 	});
