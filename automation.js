@@ -89,7 +89,7 @@ const pdfDeleted = (connection) => {
 					{
 						path: `./borrados/borrados-recientes ${d
 							.toLocaleDateString("es")
-							.replace(/\//g, "-")} ${d.toLocaleTimeString()}.pdf`,
+							.replace(/\//g, "-")} ${d.toLocaleTimeString().replace(/:/g, "-")}.pdf`,
 					}
 				)
 				.then(() => {
@@ -124,7 +124,7 @@ const backupDatabase = () => {
 			},
 			dumpToFile: `${
 				config.BACKUP_FILE
-			}/respaldo--${new Date().toLocaleTimeString()}.sql`,
+			}respaldo--${new Date().toLocaleTimeString().replace(/:/g, "-")}.sql`,
 		},
 		(err) => {
 			if (err) {
@@ -173,7 +173,7 @@ const generatePDF = (connection) => {
 				{
 					path: `./pdfs/historial ${d
 						.toLocaleDateString("es")
-						.replace(/\//g, "-")} ${d.toLocaleTimeString()}.pdf`,
+						.replace(/\//g, "-")} ${d.toLocaleTimeString().replace(/:/g, "-")}.pdf`,
 				}
 			)
 			.then(() => {
