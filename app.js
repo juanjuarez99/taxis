@@ -12,15 +12,15 @@ app.options("*", cors());
 app.use(require("body-parser").json());
 
 const si = require("serve-index");
-app.use(express.static(__dirname + "/"));
-app.use("/pdf/historial", si(__dirname + "/pdfs", { icons: true }));
-app.use("/pdf/borrados", si(__dirname + "/borrados", { icons: true }));
+app.use("/pdf/historial", express.static(__dirname + "/pdfs"), si(__dirname + "/pdfs", { icons: true }));
+app.use("/pdf/borrados", express.static(__dirname + "/borrados"), si(__dirname + "/borrados", { icons: true }));
 
 const connection = mysql.createConnection({
 	host: config.DB_IP,
 	user: config.DB_USER,
 	password: config.DB_PASS,
 	database: config.DB_NAME,
+	port: config.DB_PORT
 });
 
 connection.connect();
