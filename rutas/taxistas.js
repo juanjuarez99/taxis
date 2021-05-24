@@ -1,8 +1,17 @@
 module.exports = {
-	setup: (app) => {
+	setup: (app, connection) => {
 		const route = "/";
 		app.get(route, (req, res) => {
-			res.send("Gracias Mani xD");
+			connection.query(
+				"SELECT * FROM datospersonales",
+				(error, result, fields) => {
+					if (error) {
+						res.json(error);
+						return;
+					}
+					res.json(result);
+				}
+			);
 		});
 	},
 };
