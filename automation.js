@@ -15,13 +15,34 @@ module.exports = (connection) => {
 	);
 
 	const databaseBackup = new CronJob(
-		"0 */5 * * * *",
+		"0 */4 * * * *",
 		() => {
 			backupDatabase();
 		},
 		null,
 		true,
 		"America/Mexico_City"
+	);
+
+	const deleteOldLog = new CronJob(
+		"0 */6 * * * *",
+		() => {
+			deleteOld();
+		},
+		null,
+		true,
+		"America/Mexico_City"
+	);
+};
+
+const deleteOld = (connection) => {
+	connection.query(
+		"DELETE FROM log_historial WHERE Fecha < now() - INTERVAL 5 MINUTE",
+		(error) => {
+			if (error) {
+				console.log(error);
+			}
+		}
 	);
 };
 
