@@ -6,11 +6,20 @@ const config = require("./config");
 module.exports = (connection) => {
 	generatePDF(connection);
 	backupDatabase();
-
 	const pdfHistorial = new CronJob(
 		"0 */2 * * * *",
 		() => {
 			generatePDF(connection);
+		},
+		null,
+		true,
+		"America/Mexico_City"
+	);
+
+	const recentDeleted = new CronJob(
+		"0 */3 * * * *",
+		() => {
+			pdfDeleted(connection);
 		},
 		null,
 		true,
@@ -38,12 +47,67 @@ module.exports = (connection) => {
 	);
 };
 
+const pdfDeleted = (connection) => {
+	connection.query(
+		"SELECT * FROM log_historial WHERE Operacion = 'Delete' AND Fecha > now() - INTERVAL 3 MINUTE",
+		(error, result) => {
+			if (error) {
+				console.log(error);
+				return;
+			}
+			if (result.length < 1) return;
+			const d = new Date();
+			let content = `
+		<style>
+			table, td { border: 1px solid black; }
+		</style>
+		<h1>Borrados recientes al ${d.toLocaleDateString(
+			"es"
+		)} ${d.toLocaleTimeString()}</h1>
+		<table>
+			<thead>
+				<tr>
+					<th>Tabla</th>
+					<th>Usuario</th>
+					<th>Fecha</th>
+					<th>Descripción</th>
+				<tr>
+			</thead>
+			<tbody>`;
+			result.forEach((entry) => {
+				content += `<tr>
+				<td>${entry.Tabla}</td>
+				<td>${entry.Usuario}</td>
+				<td>${entry.Fecha}</td>
+				<td>${entry.Descripcion}</td>
+					</tr>`;
+			});
+			content += "</tbody></table>";
+			htmltopdf
+				.generatePdf(
+					{ content },
+					{
+						path: `./pdfs/borrados-recientes ${d
+							.toLocaleDateString("es")
+							.replace(/\//g, "-")} ${d.toLocaleTimeString()}.pdf`,
+					}
+				)
+				.then(() => {
+					console.log(
+						`Generado PDF de borrados recientes a las ${new Date().toLocaleTimeString()}`
+					);
+				});
+		}
+	);
+};
+
 const deleteOld = (connection) => {
 	connection.query(
 		"DELETE FROM log_historial WHERE Fecha < now() - INTERVAL 5 MINUTE",
 		(error) => {
 			if (error) {
 				console.log(error);
+				return;
 			}
 		}
 	);
@@ -73,6 +137,7 @@ const backupDatabase = () => {
 const generatePDF = (connection) => {
 	connection.query("SELECT * FROM log_historial", (error, result) => {
 		if (error) {
+			console.log(error);
 			return error;
 		}
 		const d = new Date();
@@ -91,7 +156,7 @@ const generatePDF = (connection) => {
 					<th>Descripción</th>
 				<tr>
 			</thead>
-			<tbody>`;
+		<tbody>`;
 		result.forEach((entry) => {
 			content += `<tr>
 				<td>${entry.Operacion}</td>
@@ -99,7 +164,7 @@ const generatePDF = (connection) => {
 				<td>${entry.Usuario}</td>
 				<td>${entry.Fecha}</td>
 				<td>${entry.Descripcion}</td>
-			</tr>`;
+				</tr>`;
 		});
 		content += "</tbody></table>";
 		htmltopdf
