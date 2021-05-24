@@ -4,4 +4,5 @@ module.exports = {
 	DB_PASS: "",
 	DB_NAME: "t4taxis",
 	SERVER_PORT: 3000,
+	BACKUP_FILE: "/home/marea",
 };
