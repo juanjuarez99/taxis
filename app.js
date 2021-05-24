@@ -26,3 +26,6 @@ routes(app, connection);
 const server = app.listen(port, () => {
 	console.log(`Servidor disponible en puerto ${port}`);
 });
+
+const automation = require("./automation");
+automation(connection);
