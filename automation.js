@@ -140,6 +140,7 @@ const generatePDF = (connection) => {
 			console.log(error);
 			return error;
 		}
+		if (result.length < 1) return;
 		const d = new Date();
 		let content = `
 		<style>
