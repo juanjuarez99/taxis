@@ -4,6 +4,9 @@ const mysqldump = require("mysqldump");
 const config = require("./config");
 
 module.exports = (connection) => {
+	generatePDF(connection);
+	backupDatabase();
+
 	const pdfHistorial = new CronJob(
 		"0 */2 * * * *",
 		() => {
