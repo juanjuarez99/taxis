@@ -1,5 +1,7 @@
 const htmltopdf = require("html-pdf-node");
 const CronJob = require("cron").CronJob;
+const mysqldump = require("mysqldump");
+const config = require("./config");
 
 module.exports = (connection) => {
 	const pdfHistorial = new CronJob(
@@ -10,6 +12,37 @@ module.exports = (connection) => {
 		null,
 		true,
 		"America/Mexico_City"
+	);
+
+	const databaseBackup = new CronJob(
+		"0 */5 * * * *",
+		() => {
+			backupDatabase();
+		},
+		null,
+		true,
+		"America/Mexico_City"
+	);
+};
+
+const backupDatabase = () => {
+	mysqldump(
+		{
+			connection: {
+				host: config.DB_IP,
+				user: config.DB_USER,
+				password: config.DB_PASS,
+				database: config.DB_NAME,
+			},
+			dumpToFile: `${
+				config.BACKUP_FILE
+			}/respaldo--${new Date().toLocaleTimeString()}.sql`,
+		},
+		(err) => {
+			if (err) {
+				console.log(err);
+			}
+		}
 	);
 };
 
