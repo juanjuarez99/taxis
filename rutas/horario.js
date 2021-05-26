@@ -1,6 +1,6 @@
 module.exports = {
 	setup: (app, connection) => {
-		const route = "/horario/:curp";
+		const route = "/horario/:curp"; //Muestra el horario de la persona dependiendo su CURP
 		app.get(route, (req, res) => {
 			//Muestra
 			connection.query(

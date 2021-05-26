@@ -146,10 +146,12 @@ const backupDatabase = (connection) => {
 			}
 			connection.query(
 				`INSERT INTO respaldos VALUES ()`,
-				(error) => {
+				(error, result) => {
 					if (error) {
 						console.log(error);
+						return
 					}
+					console.log(result)
 				}
 			);
 		}
