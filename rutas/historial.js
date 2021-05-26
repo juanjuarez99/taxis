@@ -1,4 +1,4 @@
-module.exports = {
+module.exports = { //Muestra el historial
 	setup: (app, connection) => {
 		const route = "/historial";
 		app.get(route, (_, res) => {

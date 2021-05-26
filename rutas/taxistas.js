@@ -1,7 +1,7 @@
 module.exports = {
 	setup: (app, connection) => {
 		const route = "/taxistas";
-		app.get(route, (_, res) => {
+		app.get(route, (_, res) => { //Muestra
 			connection.query("SELECT * FROM datospersonales", (error, result) => {
 				if (error) {
 					res.json(error);
@@ -11,7 +11,7 @@ module.exports = {
 			});
 		});
 
-		app.post(route, (req, res) => {
+		app.post(route, (req, res) => { //agrega 
 			const {
 				nombre,
 				apellido1,
@@ -30,7 +30,7 @@ module.exports = {
 			});
 		});
 
-		app.delete(route, (req, res) => {
+		app.delete(route, (req, res) => { //elimina
 			const { curp } = req.body;
 			const query = `DELETE FROM datospersonales WHERE curp = '${curp}'`;
 			connection.query(query, (error, result) => {

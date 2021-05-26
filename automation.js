@@ -3,13 +3,13 @@ const CronJob = require("cron").CronJob;
 const mysqldump = require("mysqldump");
 const config = require("./config");
 
-module.exports = (connection) => {
-	generatePDF(connection);
-	backupDatabase();
+module.exports = (connection) => { 
+	generatePDF(connection); //se genera PDF de historial
+	backupDatabase(); //respaldo a la BD
 	const pdfHistorial = new CronJob(
-		"0 */2 * * * *",
+		"0 */2 * * * *", //cada 2 min
 		() => {
-			generatePDF(connection);
+			generatePDF(connection); //genera PDF de Historial
 		},
 		null,
 		true,
@@ -17,9 +17,9 @@ module.exports = (connection) => {
 	);
 
 	const recentDeleted = new CronJob(
-		"0 */3 * * * *",
+		"0 */3 * * * *", //Cada 3 min genera el PDF de Eliminados
 		() => {
-			pdfDeleted(connection);
+			pdfDeleted(connection); //Genera PDF
 		},
 		null,
 		true,
@@ -27,27 +27,27 @@ module.exports = (connection) => {
 	);
 
 	const databaseBackup = new CronJob(
-		"0 */4 * * * *",
+		"0 */4 * * * *", //Cada 4 min
 		() => {
-			backupDatabase();
+			backupDatabase(); //Respaldo de la BD
 		},
 		null,
 		true,
 		"America/Mexico_City"
 	);
 
-	const deleteOldLog = new CronJob(
-		"0 */6 * * * *",
-		() => {
-			deleteOld(connection);
-		},
-		null,
-		true,
-		"America/Mexico_City"
-	);
+	//const deleteOldLog = new CronJob(
+	//	"0 */20 * * * *",
+	//	() => {
+	//		deleteOld(connection);
+	//	},
+	//	null,
+	//	true,
+	//	"America/Mexico_City"
+	//);
 };
 
-const pdfDeleted = (connection) => {
+const pdfDeleted = (connection) => { //funcion para generar PDF de borrados
 	connection.query(
 		"SELECT * FROM log_historial WHERE Operacion = 'Delete' AND Fecha > now() - INTERVAL 3 MINUTE",
 		(error, result) => {
@@ -84,10 +84,10 @@ const pdfDeleted = (connection) => {
 			});
 			content += "</tbody></table>";
 			htmltopdf
-				.generatePdf(
+				.generatePdf(  //genera PDF
 					{ content },
 					{
-						path: `./borrados/borrados-recientes ${d
+						path: `./borrados/borrados-recientes ${d  //ruta de almacenado de PDF
 							.toLocaleDateString("es")
 							.replace(/\//g, "-")} ${d.toLocaleTimeString().replace(/:/g, "-")}.pdf`,
 					}
@@ -101,7 +101,7 @@ const pdfDeleted = (connection) => {
 	);
 };
 
-const deleteOld = (connection) => {
+const deleteOld = (connection) => {  //Elimina todo lo viejito anterior a 5 min
 	connection.query(
 		"DELETE FROM log_historial WHERE Fecha < now() - INTERVAL 5 MINUTE",
 		(error) => {
@@ -113,7 +113,7 @@ const deleteOld = (connection) => {
 	);
 };
 
-const backupDatabase = () => {
+const backupDatabase = () => {  //fuancion para exportar BD
 	mysqldump(
 		{
 			connection: {
@@ -123,7 +123,7 @@ const backupDatabase = () => {
 				database: config.DB_NAME,
 			},
 			dumpToFile: `${
-				config.BACKUP_FILE
+				config.BACKUP_FILE  //Dirección en config
 			}respaldo--${new Date().toLocaleTimeString().replace(/:/g, "-")}.sql`,
 		},
 		(err) => {
@@ -134,7 +134,7 @@ const backupDatabase = () => {
 	);
 };
 
-const generatePDF = (connection) => {
+const generatePDF = (connection) => {  //genera PDF de historial
 	connection.query("SELECT * FROM log_historial", (error, result) => {
 		if (error) {
 			console.log(error);

@@ -1,4 +1,4 @@
-module.exports = {
+module.exports = { //Realiza el logeo a la BD
 	setup: (app, connection) => {
 		const route = "/login";
 		app.post(route, (req, res) => {
