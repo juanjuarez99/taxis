@@ -3,7 +3,7 @@ const CronJob = require("cron").CronJob;
 const mysqldump = require("mysqldump");
 const config = require("./config");
 
-module.exports = (connection) => { 
+module.exports = (connection) => {
 	generatePDF(connection); //se genera PDF de historial
 	backupDatabase(); //respaldo a la BD
 	const pdfHistorial = new CronJob(
@@ -15,7 +15,6 @@ module.exports = (connection) => {
 		true,
 		"America/Mexico_City"
 	);
-
 	const recentDeleted = new CronJob(
 		"0 */3 * * * *", //Cada 3 min genera el PDF de Eliminados
 		() => {
@@ -25,29 +24,28 @@ module.exports = (connection) => {
 		true,
 		"America/Mexico_City"
 	);
-
 	const databaseBackup = new CronJob(
 		"0 */4 * * * *", //Cada 4 min
 		() => {
-			backupDatabase(); //Respaldo de la BD
+			backupDatabase(connection); //Respaldo de la BD
 		},
 		null,
 		true,
 		"America/Mexico_City"
 	);
-
-	//const deleteOldLog = new CronJob(
-	//	"0 */20 * * * *",
-	//	() => {
-	//		deleteOld(connection);
-	//	},
-	//	null,
-	//	true,
-	//	"America/Mexico_City"
-	//);
+	// const deleteOldLog = new CronJob(
+	// 	"0 */20 * * * *",
+	// 	() => {
+	// 		deleteOld(connection);
+	// 	},
+	// 	null,
+	// 	true,
+	// 	"America/Mexico_City"
+	// );
 };
 
-const pdfDeleted = (connection) => { //funcion para generar PDF de borrados
+const pdfDeleted = (connection) => {
+	//funcion para generar PDF de borrados
 	connection.query(
 		"SELECT * FROM log_historial WHERE Operacion = 'Delete' AND Fecha > now() - INTERVAL 3 MINUTE",
 		(error, result) => {
@@ -84,12 +82,23 @@ const pdfDeleted = (connection) => { //funcion para generar PDF de borrados
 			});
 			content += "</tbody></table>";
 			htmltopdf
-				.generatePdf(  //genera PDF
+				.generatePdf(
+					//genera PDF
 					{ content },
 					{
-						path: `./borrados/borrados-recientes ${d  //ruta de almacenado de PDF
-							.toLocaleDateString("es")
-							.replace(/\//g, "-")} ${d.toLocaleTimeString().replace(/:/g, "-")}.pdf`,
+						path: `./borrados/borrados-recientes ${d //ruta de almacenado de PDF
+							.toLocaleDateString(
+								"es"
+							)
+							.replace(
+								/\//g,
+								"-"
+							)} ${d
+							.toLocaleTimeString()
+							.replace(
+								/:/g,
+								"-"
+							)}.pdf`,
 					}
 				)
 				.then(() => {
@@ -101,9 +110,10 @@ const pdfDeleted = (connection) => { //funcion para generar PDF de borrados
 	);
 };
 
-const deleteOld = (connection) => {  //Elimina todo lo viejito anterior a 5 min
+const deleteOld = (connection) => {
+	//Elimina todo lo viejito anterior a 5 min
 	connection.query(
-		"DELETE FROM log_historial WHERE Fecha < now() - INTERVAL 5 MINUTE",
+		"DELETE FROM log_historial WHERE Fecha < now() - INTERVAL 20 MINUTE",
 		(error) => {
 			if (error) {
 				console.log(error);
@@ -113,7 +123,8 @@ const deleteOld = (connection) => {  //Elimina todo lo viejito anterior a 5 min
 	);
 };
 
-const backupDatabase = () => {  //fuancion para exportar BD
+const backupDatabase = (connection) => {
+	//fuancion para exportar BD
 	mysqldump(
 		{
 			connection: {
@@ -123,18 +134,30 @@ const backupDatabase = () => {  //fuancion para exportar BD
 				database: config.DB_NAME,
 			},
 			dumpToFile: `${
-				config.BACKUP_FILE  //Dirección en config
-			}respaldo--${new Date().toLocaleTimeString().replace(/:/g, "-")}.sql`,
+				config.BACKUP_FILE //Dirección en config
+			}respaldo--${new Date()
+				.toLocaleTimeString()
+				.replace(/:/g, "-")}.sql`,
 		},
 		(err) => {
 			if (err) {
 				console.log(err);
+				return;
 			}
+			connection.query(
+				`INSERT INTO respaldos VALUES ()`,
+				(error) => {
+					if (error) {
+						console.log(error);
+					}
+				}
+			);
 		}
 	);
 };
 
-const generatePDF = (connection) => {  //genera PDF de historial
+const generatePDF = (connection) => {
+	//genera PDF de historial
 	connection.query("SELECT * FROM log_historial", (error, result) => {
 		if (error) {
 			console.log(error);
@@ -174,7 +197,9 @@ const generatePDF = (connection) => {  //genera PDF de historial
 				{
 					path: `./pdfs/historial ${d
 						.toLocaleDateString("es")
-						.replace(/\//g, "-")} ${d.toLocaleTimeString().replace(/:/g, "-")}.pdf`,
+						.replace(/\//g, "-")} ${d
+						.toLocaleTimeString()
+						.replace(/:/g, "-")}.pdf`,
 				}
 			)
 			.then(() => {
