@@ -5,7 +5,7 @@ const config = require("./config");
 
 module.exports = (connection) => {
 	generatePDF(connection); //se genera PDF de historial
-	backupDatabase(); //respaldo a la BD
+	backupDatabase(connection); //respaldo a la BD
 	const pdfHistorial = new CronJob(
 		"0 */2 * * * *", //cada 2 min
 		() => {
@@ -125,37 +125,31 @@ const deleteOld = (connection) => {
 
 const backupDatabase = (connection) => {
 	//fuancion para exportar BD
-	mysqldump(
-		{
-			connection: {
-				host: config.DB_IP,
-				user: config.DB_USER,
-				password: config.DB_PASS,
-				database: config.DB_NAME,
-			},
-			dumpToFile: `${
-				config.BACKUP_FILE //Dirección en config
-			}respaldo--${new Date()
-				.toLocaleTimeString()
-				.replace(/:/g, "-")}.sql`,
+	mysqldump({
+		connection: {
+			host: config.DB_IP,
+			user: config.DB_USER,
+			password: config.DB_PASS,
+			database: config.DB_NAME,
 		},
-		(err) => {
-			if (err) {
-				console.log(err);
-				return;
-			}
+		dumpToFile: `${
+			config.BACKUP_FILE //Dirección en config
+		}respaldo--${new Date()
+			.toLocaleTimeString()
+			.replace(/:/g, "-")}.sql`,
+	})
+		.then(() => {
 			connection.query(
 				`INSERT INTO respaldos VALUES ()`,
 				(error, result) => {
 					if (error) {
 						console.log(error);
-						return
+						return;
 					}
-					console.log(result)
 				}
 			);
-		}
-	);
+		})
+		.catch((err) => console.log(err));
 };
 
 const generatePDF = (connection) => {
